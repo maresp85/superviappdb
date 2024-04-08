@@ -88,7 +88,7 @@ app.post('/empresa/crear', upload.single('logoImage'), verificaTokenAdmin, (req,
 // ========================================
 // Actualizar empresa
 // ========================================
-app.put('/empresa/editar/:id', (req, res) => {
+app.put('/empresa/editar/:id', verificaTokenAdmin, (req, res) => {
     
     let id = req.params.id;
     let body = req.body;

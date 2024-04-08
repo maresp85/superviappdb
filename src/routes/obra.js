@@ -1,6 +1,8 @@
 const express = require('express');
-const { verificaToken } = require('../middlewares/autenticacion');
 let app = express();
+
+const { verificaToken } = require('../middlewares/autenticacion');
+let { verificaTokenAdmin } = require('../middlewares/autenticacion')
 
 let obra = require('../models/obra');
 let obrausuario = require('../models/obrausuario');
@@ -164,7 +166,7 @@ app.post('/obra/crear', verificaToken, (req, res) => {
 // Actualizar Obra
 // =======================================
 
-app.put('/obra/editar/:id', verificaToken, (req, res) => {
+app.put('/obra/editar/:id', verificaTokenAdmin, (req, res) => {
     
     let id = req.params.id;
     let body = req.body;
@@ -186,5 +188,29 @@ app.put('/obra/editar/:id', verificaToken, (req, res) => {
     });
     
 });
+
+// ========================================
+// Elimina Obra
+// ========================================
+app.delete('/obra/eliminar/:id', verificaTokenAdmin, (req, res) => {
+    
+    let id = req.params.id;
+   
+    obra.findByIdAndRemove(id, (err) => {
+
+        if (err) {
+            return res.status(400).json({
+                ok: false,
+                err
+            });
+        }
+
+        res.json({
+            ok: true
+        });              
+        
+    });
+
+});  
 
 module.exports = app;
