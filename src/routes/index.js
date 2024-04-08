@@ -20,5 +20,6 @@ app.use(require('./hermeticidad'));
 app.use(require('./hermeticidadlectura'));
 app.use(require('./noconformidad'));
 app.use(require('./obrausuario'));
+app.use(require('./utils'));
 
 module.exports = app;

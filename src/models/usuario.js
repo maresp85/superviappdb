@@ -4,14 +4,9 @@ const uniqueValidator = require('mongoose-unique-validator');
 let rolesValidos = {
     values: [
         'ADMIN', 
-        'COORDINADOR', 
-        'SUPERVISOR',
-        'INGENIERO', 
-        'RESIDENTE DE OBRA',
-        'DIRECTOR DE OBRA', 
-        'GERENCIA-DIRECCIÓN CONSTRUCCIONES',
-        'SSTT',
-        'OTROS',
+        'SUPERVISOR SSTA',
+        'SUPERVISOR LEGAL LABORAL',
+        'SUPERVISOR DEL CONTRATO',
     ],
     message: "{VALUE} no es un rol válido"
 }
@@ -23,7 +18,7 @@ let usuarioSchema = new Schema({
     email: { type: String, unique: true, required: [true, 'El correo es necesario'] },
     password: { type: String, required: [true, 'La contraseña es obligatoria'] }, 
     img: { type: String, required: false },
-    role: { type: String, required: true, default: 'INGENIERO', enum: rolesValidos },
+    role: { type: String, required: true, default: 'SUPERVISOR SSTA', enum: rolesValidos },
     estado: { type: Boolean, default: true },
     empresa: [{ type: Schema.Types.ObjectId, required: false, ref: 'empresa' }],
     imgfirma: { type: String, unique: false },

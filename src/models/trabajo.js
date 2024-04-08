@@ -9,6 +9,7 @@ let trabajoSchema = new Schema({
     fechaMejora: { type: Boolean, required: false, default: true },    
     legalizaCualquierOrden: { type: Boolean, required: false, default: true },
     bitacora: { type: Boolean, required: false, default: false },
+    extraFields: [{ type: String }],
 });
 
 module.exports = mongoose.model('trabajo', trabajoSchema);

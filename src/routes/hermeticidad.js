@@ -91,9 +91,9 @@ app.get('/hermeticidad/listarusuario-obra/:usuario', verificaToken, (req, res) =
             role = item.usuario.role;
         });
 
-        // Si es ingeniero, ordenes asignadas
+        // Si es SUPERVISOR SSTA, ordenes asignadas
         // Sino todas las ordenes de las obras asignadas.
-        if (role === 'INGENIERO') {
+        if (role === 'SUPERVISOR SSTA') {
             query = { usuario: usuario, obra: { $in: obras } };
         } else {
             query = { obra: { $in: obras } };

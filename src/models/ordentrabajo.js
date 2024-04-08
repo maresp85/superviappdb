@@ -7,7 +7,7 @@ const dateColombia = moment.tz(Date.now(), "America/Bogota");
 
 let estadosValidos = {
     values: ['ASIGNADA', 'EN PROCESO', 'CUMPLE', 'NO CUMPLE', 'CERRADA'],
-    message: "{VALUE} no es un estado válido"
+    message: '{VALUE} no es un estado válido'
 }
 
 let ordentrabajoSchema = new Schema({
@@ -21,12 +21,19 @@ let ordentrabajoSchema = new Schema({
     usuario: { type: Schema.Types.ObjectId, ref: 'usuario' },
     idviga: { type: String, required: false },
     bitacora: { type: Boolean, required: false, default: false },
+    firmaUsuario: { type: String, unique: false },
+    extraFields: [{ type: String }],
+    extraFieldsData: [{ key: String, field: String, value: String }],
 });
 
 autoIncrement.initialize(mongoose.connection);
-ordentrabajoSchema.plugin(autoIncrement.plugin, { model: 'ordentrabajo', 
-                                                  field: 'id',
-                                                  startAt: 1,
-                                                  incrementBy: 1 });
+ordentrabajoSchema.plugin(
+    autoIncrement.plugin, { 
+        model: 'ordentrabajo', 
+        field: 'id',
+        startAt: 1,
+        incrementBy: 1 
+    }
+);
 
 module.exports = mongoose.model('ordentrabajo', ordentrabajoSchema);

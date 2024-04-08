@@ -9,14 +9,10 @@ let estadosValidos = {
 
 let rolesValidos = {
     values: [  
-        'COORDINADOR', 
-        'SUPERVISOR',
-        'INGENIERO', 
-        'RESIDENTE DE OBRA',
-        'DIRECTOR DE OBRA', 
-        'GERENCIA-DIRECCIÓN CONSTRUCCIONES',
-        'SSTT',
-        'OTROS',
+        'ADMIN', 
+        'SUPERVISOR SSTA',
+        'SUPERVISOR LEGAL LABORAL',
+        'SUPERVISOR DEL CONTRATO',
     ],
     message: '{VALUE} no es un rol válido'
 }
@@ -37,7 +33,7 @@ let ordenactividadSchema = new Schema({
     fechaMejora: { type: String, required: false }, 
     activo: { type: Boolean, required: false, default: true },
     orden: { type: Number, required: false, default: 1 },
-    role: { type: String, required: true, default: 'INGENIERO', enum: rolesValidos },
+    role: { type: String, required: true, default: 'SUPERVISOR SSTA', enum: rolesValidos },
     consecutivo: { type: Number },
 });
 

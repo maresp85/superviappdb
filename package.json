@@ -23,6 +23,7 @@
     "nodemailer": "^6.4.6",
     "pdfkit": "^0.11.0",
     "sharp": "^0.25.4",
-    "underscore": "^1.9.1"
+    "underscore": "^1.9.1",
+    "uuid": "^9.0.1"
   }
 }

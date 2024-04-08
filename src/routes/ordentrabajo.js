@@ -324,7 +324,9 @@ app.post('/ordentrabajo/crear', verificaToken, (req, res) => {
                 observacion: body.observaciones,
                 estado: 'ASIGNADA',
                 idviga: 'NO',
-                usuario: body.usuario
+                usuario: body.usuario,
+                extraFields: trabajoDB[0].extraFields,
+                extraFieldsData: [],
             });
         
             data.save((err, ordentrabajoDB) => {  
@@ -366,12 +368,13 @@ app.post('/ordentrabajo/crear', verificaToken, (req, res) => {
                                 //llenar la tabla orden actividad
                                 //se capturan las actividades asociadas al tipo de trabajo
                                 actividad
-                                    .find({ tipotrabajo: item._id })
+                                    .find({ tipotrabajo: item._id, empresa: body.empresa })
                                     .exec((err, actividadDB) => {
                                             
                                     let consecutivo = 1;
         
-                                    actividadDB.forEach((itemActividad) => {                                        
+                                    actividadDB.forEach((itemActividad) => {
+                                                        
                                         let dataActividad = new ordenactividad({
                                             ordentrabajo: ordentrabajoDB._id,
                                             ordentipotrabajo: ordtipoDB._id,
@@ -501,9 +504,9 @@ app.post('/ordentrabajo-bitacora/crear', verificaToken, (req, res) => {
 
 
 // ========================================
-// Actualizar id viga
+// Actualizar extra campos
 // ========================================
-app.put('/ordentrabajo/idviga/:id', verificaToken, (req, res) => {
+app.put('/ordentrabajo/extraFields/:id', verificaToken, (req, res) => {
     
     let id = req.params.id;
     let body = req.body;

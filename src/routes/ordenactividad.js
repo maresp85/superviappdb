@@ -279,7 +279,7 @@ app.get('/ordenactividad/listaruna/:id', (req, res) => {
 // ==================================================
 // Actualizar una orden de actividad (legalización)
 // ==================================================
-app.put('/ordenactividad/editar/:id', upload.array("uploads[]"), function (req, res, next) {
+app.put('/ordenactividad/editar/:id', upload.array('uploads[]'), function (req, res, next) {
    
     let id = req.params.id;
     let body = req.body
@@ -752,7 +752,7 @@ const sendEmail = (ordenact, obra) => {
                                         html: `<div style="padding: 10px; border-bottom: 4px solid #ddd; font-family: 'Montserrat', 'Tahoma', 'Roboto'; background-color: #fbfbfb" >
                                             Estimado Usuario, <br><br> La bitácora N° ${ ordentrabajoDB[0]['id'] } 
                                             tiene una nueva nota <strong style="color:red">ABIERTA</strong> 
-                                            por el ingeniero ${ ordenactividadDB2[0]['usuariolegaliza'].nombre }.
+                                            por el SUPERVISOR SSTA ${ ordenactividadDB2[0]['usuariolegaliza'].nombre }.
                                             Tipo de nota: <i>"${ ordenactividadDB2[0]['actividad'].nombre }"</i>
                                             </div>`
                                     };
@@ -764,7 +764,7 @@ const sendEmail = (ordenact, obra) => {
                                         html: `<div style="padding: 10px; border-bottom: 4px solid #ddd; font-family: 'Montserrat', 'Tahoma', 'Roboto'; background-color: #fbfbfb" >
                                             Estimado Usuario, <br><br> La orden N° ${ ordentrabajoDB[0]['id'] } 
                                             fue legalizada como <strong style="color:red">INCUMPLIDA</strong> 
-                                            por el ingeniero ${ ordenactividadDB2[0]['usuariolegaliza'].nombre } 
+                                            por el SUPERVISOR SSTA ${ ordenactividadDB2[0]['usuariolegaliza'].nombre } 
                                             en la <b>Viga: ${ ordentrabajoDB[0]['idviga'] }</b>. En la 
                                             actividad: <i>"${ ordenactividadDB2[0]['actividad'].nombre }"</i>
                                             </div>`

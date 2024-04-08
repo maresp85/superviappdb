@@ -2,12 +2,12 @@ const express = require('express');
 const multer = require('multer');
 const app = express();
 
-const { verificaToken } = require('../middlewares/autenticacion');
+let { verificaTokenAdmin } = require('../middlewares/autenticacion');
 
 let empresa = require('../models/empresa');
 
 // ========================================
-// Almacena las imágenes de los usuarios
+// Almacena las imágenes de las empresas
 // ========================================
 const storage = multer.diskStorage({
     // destination
@@ -24,7 +24,7 @@ const upload = multer({ storage: storage });
 // =============================
 // Consultar Empresas
 // =============================
-app.get('/empresa/listar', verificaToken, (req, res) => {
+app.get('/empresa/listar', verificaTokenAdmin, (req, res) => {
 
     empresa
         .find({}, 'nombre ubicacion telefono activo logo')
@@ -48,7 +48,7 @@ app.get('/empresa/listar', verificaToken, (req, res) => {
 // =============================
 // Crear Empresa
 // =============================
-app.post('/empresa/crear', upload.single('logoImage'), verificaToken, (req, res) => {
+app.post('/empresa/crear', upload.single('logoImage'), verificaTokenAdmin, (req, res) => {
    
     let body = req.body;
 
@@ -82,6 +82,32 @@ app.post('/empresa/crear', upload.single('logoImage'), verificaToken, (req, res)
         });
 
     });
+});
+
+
+// ========================================
+// Actualizar empresa
+// ========================================
+app.put('/empresa/editar/:id', (req, res) => {
+    
+    let id = req.params.id;
+    let body = req.body;
+   
+    empresa.findByIdAndUpdate(id, body, {new: true, runValidators: true}, (err, empresaDB) => {
+        if (err) {
+            return res.status(400).json({
+                ok: false,
+                err
+            });
+        }
+
+        res.json({
+            ok: true,
+            empresaDB
+        });
+
+    });
+    
 });
 
 module.exports = app;

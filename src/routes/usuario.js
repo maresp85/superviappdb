@@ -6,7 +6,6 @@ const Usuario = require('../models/usuario');
 const app = express();
 
 let { verificaTokenAdmin } = require('../middlewares/autenticacion');
-let { verificaToken } = require('../middlewares/autenticacion');
 
 // ========================================
 // Almacena las imágenes de los usuarios
@@ -51,7 +50,7 @@ app.get('/usuario', verificaTokenAdmin, (req, res) => {
 // ========================================
 // Obtiene todos los usuarios x empresa
 // =======================================
-app.get('/usuario/:empresa', verificaToken, (req, res) => {
+app.get('/usuario/:empresa', verificaTokenAdmin, (req, res) => {
 
     let empresa = req.params.empresa;
 
@@ -78,12 +77,12 @@ app.get('/usuario/:empresa', verificaToken, (req, res) => {
 // ========================================
 // Consultar un usuario a partir del Email
 // ========================================
-app.get('/unusuario/:email', (req, res) => {
+app.get('/unusuario/:email', verificaTokenAdmin, (req, res) => {
 
     let email = req.params.email;
 
     Usuario.findOne({ email: email })
-           .exec((err, usuarioDB) => {
+            .exec((err, usuarioDB) => {
                 if (err) {
                     return res.status(400).json({
                         ok: false,
@@ -142,7 +141,8 @@ app.put('/usuario/editar/:id', upload.single('signimg'), verificaTokenAdmin, (re
     let fields = [
         'nombre',
         'email', 
-        'role', 
+        'role',
+        'empresa',
         'estado', 
         'enterweb', 
         'entermovil', 
@@ -212,7 +212,7 @@ app.put('/usuario/editarclave/:id', verificaTokenAdmin, (req, res) => {
 // ========================================
 // Consultar un usuario a partir del ID
 // ========================================
-app.get('/unusuarioid/:id', (req, res) => {
+app.get('/unusuarioid/:id', verificaTokenAdmin, (req, res) => {
 
     let id = req.params.id;
 
@@ -234,5 +234,29 @@ app.get('/unusuarioid/:id', (req, res) => {
                 
            });
 });
+
+// ========================================
+// Elimina usuario
+// ========================================
+app.delete('/usuario/eliminar/:id', verificaTokenAdmin, (req, res) => {
+    
+    let id = req.params.id;
+   
+    Usuario.findByIdAndRemove(id, (err) => {
+
+        if (err) {
+            return res.status(400).json({
+                ok: false,
+                err
+            });
+        }
+
+        res.json({
+            ok: true
+        });              
+        
+    });
+
+});    
 
 module.exports = app;
