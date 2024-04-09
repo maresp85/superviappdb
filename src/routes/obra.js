@@ -75,7 +75,7 @@ app.get('/obra/listar-usuario/:usuario', verificaToken, (req, res) => {
 
         let obras = [];
         obrausuarioDB.forEach((item) => {
-            if (item.obra.activo) {
+            if (item.obra && item.obra.activo) {
                 obras.push(item.obra._id);
             }
         });

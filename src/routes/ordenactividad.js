@@ -740,7 +740,7 @@ const sendEmail = (ordenact, obra) => {
                                     port: 465,
                                     secure: true, // true for 465, false for other ports                                        
                                     auth: {
-                                        user: 'admin@supervision-tecnica.com',
+                                        user: 'admin@superviapp.com',
                                         pass: 'Torito2020+', 
                                     },
                                 });
@@ -748,9 +748,9 @@ const sendEmail = (ordenact, obra) => {
                                 let mailOptions = '';
                                 if (ordentrabajoDB[0]['trabajo'].bitacora) {
                                     mailOptions = {
-                                        from: 'admin@supervision-tecnica.com',
+                                        from: 'admin@ssuperviapp.com',
                                         to: coordinador.usuario.email,
-                                        subject: `Nueva nota en bitácora de obra ${ ordentrabajoDB[0]['obra'].nombre }`,
+                                        subject: `Nueva nota en bitácora para el aliado ${ ordentrabajoDB[0]['obra'].nombre }`,
                                         html: `<div style="padding: 10px; border-bottom: 4px solid #ddd; font-family: 'Montserrat', 'Tahoma', 'Roboto'; background-color: #fbfbfb" >
                                             Estimado Usuario, <br><br> La bitácora N° ${ ordentrabajoDB[0]['id'] } 
                                             tiene una nueva nota <strong style="color:red">ABIERTA</strong> 
@@ -760,15 +760,14 @@ const sendEmail = (ordenact, obra) => {
                                     };
                                 } else {
                                     mailOptions = {
-                                        from: 'admin@supervision-tecnica.com',
+                                        from: 'admin@superviapp.com',
                                         to: coordinador.usuario.email,
-                                        subject: `Legalización en obra ${ ordentrabajoDB[0]['obra'].nombre }`,
+                                        subject: `Legalización para el aliado ${ ordentrabajoDB[0]['obra'].nombre }`,
                                         html: `<div style="padding: 10px; border-bottom: 4px solid #ddd; font-family: 'Montserrat', 'Tahoma', 'Roboto'; background-color: #fbfbfb" >
                                             Estimado Usuario, <br><br> La orden N° ${ ordentrabajoDB[0]['id'] } 
                                             fue legalizada como <strong style="color:red">INCUMPLIDA</strong> 
-                                            por el SUPERVISOR SSTA ${ ordenactividadDB2[0]['usuariolegaliza'].nombre } 
-                                            en la <b>Viga: ${ ordentrabajoDB[0]['idviga'] }</b>. En la 
-                                            actividad: <i>"${ ordenactividadDB2[0]['actividad'].nombre }"</i>
+                                            por el SUPERVISOR SSTA ${ ordenactividadDB2[0]['usuariolegaliza'].nombre }.
+                                            En la actividad: <i>"${ ordenactividadDB2[0]['actividad'].nombre }"</i>
                                             </div>`
                                     };
                                 }

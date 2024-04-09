@@ -188,7 +188,7 @@ app.get('/ordentrabajo/listarusuario-obra/:usuario/:bitacora', verificaToken, (r
         let obras = [];
         let estados = ['ASIGNADA', 'EN PROCESO', 'CUMPLE', 'NO CUMPLE'];
         obrausuarioDB.forEach((item) => {
-            if (item.obra.activo) {
+            if (item.obra && item.obra.activo) {
                 obras.push(item.obra._id);
             }
         });
