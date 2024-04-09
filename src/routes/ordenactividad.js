@@ -42,7 +42,8 @@ app.get('/ordenactividad/listar/:ordentrabajo/:activo', (req, res) => {
         .populate('ordentrabajo')   
         .populate('actividad')   
         .populate('tipotrabajo')          
-        .populate('usuariolegaliza')  
+        .populate('usuariolegaliza')
+        .sort({ orden: 1 }) // Orden ascendente por el campo "orden"
         .exec((err, ordenactividadDB) => {
             if (err) {
                 return res.status(400).json({
@@ -73,6 +74,7 @@ app.get('/ordenactividad/listartodas/:ordentrabajo', (req, res) => {
         .populate('actividad')   
         .populate('tipotrabajo')          
         .populate('usuariolegaliza')
+        .sort({ orden: 1 })
         .exec((err, ordenactividadDB) => {
             if (err) {
                 return res.status(400).json({

@@ -6,6 +6,7 @@ const Usuario = require('../models/usuario');
 const app = express();
 
 let { verificaTokenAdmin } = require('../middlewares/autenticacion');
+const { verificaToken } = require('../middlewares/autenticacion');
 
 // ========================================
 // Almacena las imágenes de los usuarios
@@ -77,7 +78,33 @@ app.get('/usuario/:empresa', verificaTokenAdmin, (req, res) => {
 // ========================================
 // Consultar un usuario a partir del Email
 // ========================================
-app.get('/unusuario/:email', verificaTokenAdmin, (req, res) => {
+app.get('/unusuario/:email', verificaToken, (req, res) => {
+
+    let email = req.params.email;
+
+    Usuario.findOne({ email: email })
+            .exec((err, usuarioDB) => {
+                if (err) {
+                    return res.status(400).json({
+                        ok: false,
+                        err
+                    });
+                }
+
+                Usuario.count({}, (err, conteo) => {
+                    res.json({
+                        ok: true,
+                        usuarioDB
+                    });
+                });
+                
+           });
+});
+
+// =====================================================
+// Consultar un usuario a partir del Email para el ADMIN
+// =====================================================
+app.get('/unusuario-from-admin/:email', verificaToken, (req, res) => {
 
     let email = req.params.email;
 

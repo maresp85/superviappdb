@@ -645,9 +645,6 @@ app.post('/ordentrabajo/buscar', (req, res) => {
     if (estado) {
         query.estado = estado;
     }
-    if (idviga) {
-        query.idviga = {'$regex': idviga};
-    }
     if (trabajo) {
         query.trabajo = trabajo;
     }
@@ -667,23 +664,24 @@ app.post('/ordentrabajo/buscar', (req, res) => {
         query.fecha = { $gte: fechaInicial, $lt: fechaFinal };
     }
 
-    ordentrabajo.find(query)
-               .populate('trabajo')
-               .populate('obra')
-               .populate('usuario')
-               .sort([['id', -1]])    
-               .exec((err, ordentrabajoDB) => {
-                    if (err) {
-                        return res.status(400).json({
-                            ok: false,
-                            err
-                        });
-                    }
-
-                res.json({
-                    ok: true,
-                    ordentrabajoDB
+    ordentrabajo
+        .find(query)
+        .populate('trabajo')
+        .populate('obra')
+        .populate('usuario')
+        .sort([['id', -1]])    
+        .exec((err, ordentrabajoDB) => {
+            if (err) {
+                return res.status(400).json({
+                    ok: false,
+                    err
                 });
+            }
+
+        res.json({
+            ok: true,
+            ordentrabajoDB
+        });
                         
     });
 
