@@ -6,6 +6,7 @@ let { verificaTokenAdmin } = require('../middlewares/autenticacion')
 
 let obra = require('../models/obra');
 let obrausuario = require('../models/obrausuario');
+let usuario = require('../models/usuario');
 
 // =============================
 // Consultar Obras
@@ -14,6 +15,7 @@ app.get('/obra/listar', (req, res) => {
 
     obra.find()
         .populate('empresa')
+        .sort([['nombre', 1]])
         .exec((err, obraDB) => {
             if ( err ) {
                 return res.status(400).json({
@@ -38,7 +40,8 @@ app.get('/obra/listar/:empresa', (req, res) => {
 
     let empresa = req.params.empresa;
 
-    obra.find({ empresa: empresa })
+    obra.find({ activo: 1, empresa: empresa })
+        .sort([['nombre', 1]])
         .exec( (err, obraDB) => {
             if ( err ) {
                 return res.status(400).json({
@@ -60,11 +63,11 @@ app.get('/obra/listar/:empresa', (req, res) => {
 // Consultar Obras x Usuario
 // =============================
 app.get('/obra/listar-usuario/:usuario', verificaToken, (req, res) => {
-    let usuario = req.params.usuario;
+    let usuarioId = req.params.usuario;
 
     obrausuario
-        .find({ usuario: usuario })    
-        .populate('obra')     
+        .find({ usuario: usuarioId })    
+        .populate('obra')
         .exec((err, obrausuarioDB) => {
             if (err) {
                 return res.status(400).json({
@@ -80,24 +83,96 @@ app.get('/obra/listar-usuario/:usuario', verificaToken, (req, res) => {
             }
         });
 
-        obra.find({ _id: { $in: obras } })
-        .exec( (err, obraDB) => {
-            if ( err ) {
-                return res.status(400).json({
-                    ok: false,
-                    err
-                });
-            }
+        obra.find({ activo: 1, _id: { $in: obras } })
+            .sort([['nombre', 1]])
+            .exec( (err, obraDB) => {
+                if ( err ) {
+                    return res.status(400).json({
+                        ok: false,
+                        err
+                    });
+                }
 
-            res.json({
-                ok: true,
-                obraDB
-            });
+                res.json({
+                    ok: true,
+                    obraDB
+                });
                     
         });
                         
     });
 
+});
+
+// =============================
+// Consultar Obras x Usuario App
+// =============================
+app.get('/obra/listar-usuario-app/:usuario', verificaToken, (req, res) => {
+    let usuarioId = req.params.usuario;
+
+
+    usuario
+        .find({ _id: usuarioId })
+        .exec((err, usuarioDB) => {
+
+            if (usuarioDB[0].role === 'SUPERVISOR DEL CONTRATO') {
+
+                obra.find({ activo: 1, empresa: usuarioDB[0].empresa[0] })
+                    .sort([['nombre', 1]])
+                    .exec( (err, obraDB) => {
+                        if ( err ) {
+                            return res.status(400).json({
+                                ok: false,
+                                err
+                            });
+                        }
+        
+                        res.json({
+                            ok: true,
+                            obraDB
+                        });                    
+                    });
+
+            } else {
+
+                obrausuario
+                    .find({ usuario: usuarioId })    
+                    .populate('obra')
+                    .sort([['nombre', 1]])
+                    .exec((err, obrausuarioDB) => {
+                        if (err) {
+                            return res.status(400).json({
+                                ok: false,
+                                err
+                            });
+                        }
+            
+                    let obras = [];
+                    obrausuarioDB.forEach((item) => {
+                        if (item.obra && item.obra.activo) {
+                            obras.push(item.obra._id);
+                        }
+                    });
+            
+                    obra.find({ activo: 1, _id: { $in: obras }, })
+                        .exec( (err, obraDB) => {
+                            if ( err ) {
+                                return res.status(400).json({
+                                    ok: false,
+                                    err
+                                });
+                            }
+            
+                            res.json({
+                                ok: true,
+                                obraDB
+                            });                    
+                    });
+                                    
+                });
+
+            }
+        });
 });
 
 // ==============================================

@@ -3,7 +3,6 @@ const fs = require('fs')
 let app = express();
 
 const { verificaToken } = require('../middlewares/autenticacion');
-let obrausuario = require('../models/obrausuario');
 let ordentrabajo = require('../models/ordentrabajo');
 let ordentipotrabajo = require('../models/ordentipotrabajo');
 let imgordenactividad = require('../models/imgordenactividad');
@@ -11,6 +10,7 @@ let ordenactividad = require('../models/ordenactividad');
 let tipotrabajo = require('../models/tipotrabajo');
 let actividad = require('../models/actividad');
 let trabajo = require('../models/trabajo');
+let usuario = require('../models/usuario');
 
 // ================================================
 // Consultar todas las ordenes de trabajo x empresa
@@ -93,10 +93,10 @@ app.get('/ordentrabajo-filtrobitacora/listar/:empresa/:bitacora', verificaToken,
 // ================================================
 app.get('/ordentrabajo/listarusuario/:usuario/:bitacora', verificaToken, (req, res) => {
 
-    let usuario = req.params.usuario;
+    let usuarioId = req.params.usuario;
 
     ordentrabajo
-        .find({ usuario: usuario })
+        .find({ usuario: usuarioId })
         .populate('trabajo')
         .populate('obra')
         .populate('usuario')
@@ -124,7 +124,7 @@ app.get('/ordentrabajo/listarusuario/:usuario/:bitacora', verificaToken, (req, r
 app.get('/ordentrabajo-filtrobitacora/listarusuario/:usuario/:empresa/:bitacora', verificaToken, (req, res) => {
 
     let empresa = req.params.empresa;
-    let usuario = req.params.usuario;
+    let usuarioId = req.params.usuario;
     let bitacora = req.params.bitacora;
 
     trabajo
@@ -143,7 +143,7 @@ app.get('/ordentrabajo-filtrobitacora/listarusuario/:usuario/:empresa/:bitacora'
             });
 
             ordentrabajo
-                .find({ usuario: usuario, trabajo: { $in: trabajos } })
+                .find({ usuario: usuarioId, trabajo: { $in: trabajos } })
                 .populate('trabajo')
                 .populate('obra')
                 .populate('usuario')
@@ -170,51 +170,45 @@ app.get('/ordentrabajo-filtrobitacora/listarusuario/:usuario/:empresa/:bitacora'
 // ================================================
 app.get('/ordentrabajo/listarusuario-obra/:usuario/:bitacora', verificaToken, (req, res) => {
 
-    let usuario = req.params.usuario;
+    let usuarioId = req.params.usuario;
     let bitacora = req.params.bitacora;
 
-    obrausuario
-        .find({ usuario: usuario })
-        .populate('usuario')     
-        .populate('obra')     
-        .exec((err, obrausuarioDB) => {
-            if (err) {
-                return res.status(400).json({
-                    ok: false,
-                    err
-                });
+    usuario
+        .find({ _id: usuarioId })
+        .exec((err, usuarioDB) => {
+
+            let estados = ['ASIGNADA', 'EN PROCESO', 'CUMPLE', 'NO CUMPLE'];      
+            query = { 
+                bitacora: bitacora,
+                empresa: usuarioDB[0].empresa[0],
+                estado: { $in: estados } 
+            };
+
+            if (usuarioDB[0].role !== 'SUPERVISOR DEL CONTRATO') {
+                query.usuario = usuarioId;
             }
 
-        let obras = [];
-        let estados = ['ASIGNADA', 'EN PROCESO', 'CUMPLE', 'NO CUMPLE'];
-        obrausuarioDB.forEach((item) => {
-            if (item.obra && item.obra.activo) {
-                obras.push(item.obra._id);
-            }
-        });
+            ordentrabajo
+                .find(query)
+                .populate('trabajo')
+                .populate('obra')
+                .populate('usuario')
+                .sort([['id', -1]])    
+                .exec((err, ordentrabajoDB) => {
+                    if (err) {
+                        return res.status(400).json({
+                            ok: false,
+                            err
+                        });
+                    }
 
-        query = { bitacora: bitacora, obra: { $in: obras }, estado: { $in: estados} };
-     
-        ordentrabajo
-            .find(query)
-            .populate('trabajo')
-            .populate('obra')
-            .populate('usuario')
-            .sort([['id', -1]])    
-            .exec((err, ordentrabajoDB) => {
-                if (err) {
-                    return res.status(400).json({
-                        ok: false,
-                        err
-                    });
-                }
+                res.json({
+                    ok: true,
+                    ordentrabajoDB
+                });                        
+            });
 
-            res.json({
-                ok: true,
-                ordentrabajoDB
-            });                        
-        });                    
-    });
+    });    
 
 });
 
@@ -630,7 +624,7 @@ app.delete('/ordentrabajo/eliminar/:id', verificaToken, (req, res) => {
 // ================================================
 app.post('/ordentrabajo/buscar', (req, res) => {
 
-    const { id, empresa, usuario, estado, idviga, trabajo, obra, fecha, fechaf } = req.body;
+    const { id, empresa, usuario, estado, trabajo, obra, fecha, fechaf } = req.body;
         
     let query = {};
     if (id) {
@@ -687,6 +681,71 @@ app.post('/ordentrabajo/buscar', (req, res) => {
 
 });
 
+// ================================================
+// Búsqueda de ordenes de trabajo desde la app
+// ================================================
+app.post('/ordentrabajo/buscar-app', (req, res) => {
+
+    const { id, usuarioId, estado, trabajo, obra, fecha, fechaf } = req.body;
+
+    usuario
+        .find({ _id: usuarioId })
+        .exec((err, usuarioDB) => {
+
+            let query = { empresa: usuarioDB[0].empresa[0] };
+            if (id) {
+                query.id = id;
+            }          
+            if (usuarioDB[0].role !== 'SUPERVISOR DEL CONTRATO') {
+                query.usuario = usuarioId;
+            }
+            if (estado) {
+                query.estado = estado;
+            }
+            if (trabajo) {
+                query.trabajo = trabajo;
+            }
+            if (obra) {
+                query.obra = obra;
+            }
+
+            //======================== Fechas ========================//
+            let fechaInicial = new Date(fecha);
+            fechaInicial.setTime(fechaInicial.getTime() + (5*60*60*1000));
+
+            let fechaFinal = new Date(fechaf);
+            fechaFinal.setDate(fechaFinal.getDate() + 1);
+            fechaFinal.setTime(fechaFinal.getTime() + (5*60*60*5000));
+
+            if (fecha) {
+                query.fecha = { $gte: fechaInicial, $lt: fechaFinal };
+            }
+
+            ordentrabajo
+                .find(query)
+                .populate('trabajo')
+                .populate('obra')
+                .populate('usuario')
+                .sort([['id', -1]])    
+                .exec((err, ordentrabajoDB) => {
+                    if (err) {
+                        return res.status(400).json({
+                            ok: false,
+                            err
+                        });
+                    }
+
+                res.json({
+                    ok: true,
+                    ordentrabajoDB
+                });
+                                
+            });
+            
+        });    
+
+});
+
 // ==================================================================
 // Consultar las ordenes de trabajo x usuario en un rango de fechas
 // ==================================================================
@@ -705,24 +764,24 @@ app.get('/ordentrabajo/listarusuariofecha/:usuario/:fecha_inicio/:fecha_final', 
     
     query.fecha = { $gte: fechaInicial, $lt: fechaFinal };   
 
-    ordentrabajo.find(query)
-                .populate('trabajo')
-                .populate('obra')
-                .populate('usuario')
-                .sort([['fecha', 1]])
-                .exec((err, ordentrabajoDB) => {
-                    if (err) {
-                        return res.status(400).json({
-                            ok: false,
-                            err
-                        });
-                    }           
+    ordentrabajo
+        .find(query)
+        .populate('trabajo')
+        .populate('obra')
+        .populate('usuario')
+        .sort([['fecha', 1]])
+        .exec((err, ordentrabajoDB) => {
+            if (err) {
+                return res.status(400).json({
+                    ok: false,
+                    err
+                });
+            }           
 
-                    res.json({
-                        ok: true,
-                        ordentrabajoDB
-                    });
-                            
+            res.json({
+                ok: true,
+                ordentrabajoDB
+            });                            
     });
 
 });

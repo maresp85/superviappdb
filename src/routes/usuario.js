@@ -51,7 +51,7 @@ app.get('/usuario', verificaTokenAdmin, (req, res) => {
 // ========================================
 // Obtiene todos los usuarios x empresa
 // =======================================
-app.get('/usuario/:empresa', verificaTokenAdmin, (req, res) => {
+app.get('/usuario/:empresa', verificaToken, (req, res) => {
 
     let empresa = req.params.empresa;
 
