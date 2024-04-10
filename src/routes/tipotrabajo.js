@@ -1,7 +1,7 @@
 const express = require('express');
-
-let app = express();
 const { verificaTokenAdmin } = require('../middlewares/autenticacion');
+let app = express();
+
 let tipotrabajo = require('../models/tipotrabajo');
 let actividad = require('../models/actividad');
 let itemactividad = require('../models/itemactividad');

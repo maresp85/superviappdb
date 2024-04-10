@@ -1,5 +1,6 @@
 const express = require('express');
 const { verificaToken } = require('../middlewares/autenticacion');
+const { verificaTokenAdmin } = require('../middlewares/autenticacion');
 let app = express();
 
 let trabajo = require('../models/trabajo');
@@ -191,6 +192,30 @@ app.put('/trabajo/editar/:id', verificaToken, (req, res) => {
             trabajoDB
         });
 
+    });
+    
+});
+
+// ========================================
+// Eliminar tipotrabajo
+// ========================================
+app.delete('/trabajo/eliminar/:id', verificaTokenAdmin, (req, res) => {
+    
+    let id = req.params.id;
+   
+    trabajo.findByIdAndRemove(id, (err) => {
+
+        if (err) {
+            return res.status(400).json({
+                ok: false,
+                err
+            });
+        }
+
+        res.json({
+            ok: true
+        });
+      
     });
     
 });
