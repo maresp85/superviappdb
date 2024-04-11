@@ -286,7 +286,7 @@ app.put('/ordenactividad/editar/:id', upload.array('uploads[]'), function (req, 
     let id = req.params.id;
     let body = req.body
        
-    ordenactividad.findByIdAndUpdate(id, body, {new: true, runValidators: true}, (err, ordenactividadDB) => {   
+    ordenactividad.findByIdAndUpdate(id, body, {new: true, runValidators: true}, async (err, ordenactividadDB) => {   
             
         if (err) {
             return res.status(400).json({
@@ -335,77 +335,79 @@ app.put('/ordenactividad/editar/:id', upload.array('uploads[]'), function (req, 
             console.log('Error al guardar el checklist');
         }
         
-        resizeImages(req, next).then(() => {});
+        resizeImages(req, next).then(() => {
 
-        // consulta actividades, para cambiar el estado de la orden tipo de trabajo
-        ordenactividad
-            .find({ ordentipotrabajo: ordenactividadDB.ordentipotrabajo,
-                    activo: true,
-                    estado: {$in: ['NO CUMPLE', 'PENDIENTE']} 
+            // consulta actividades, para cambiar el estado de la orden tipo de trabajo
+            ordenactividad
+                .find({ ordentipotrabajo: ordenactividadDB.ordentipotrabajo,
+                        activo: true,
+                        estado: {$in: ['NO CUMPLE', 'PENDIENTE']} 
 
-            }).exec((err, ordenactividadDB2) => {       
+                }).exec((err, ordenactividadDB2) => {       
 
-                if (err) {
-                    return res.status(400).json({
-                        ok: false,
-                        err
-                    });
-                }
-
-                let body = { estado: 'EN PROCESO' };
-                ordenactividadDB2.forEach((value) => {
-                    if (value.estado === 'NO CUMPLE') {
-                        body = { estado: 'NO CUMPLE' }
-                    }
-                });  
-
-                //si la consulta no trae datos, todas las ordenes están cumplidas
-                if (ordenactividadDB2.length === 0) {                                
-                    body = { estado: 'CUMPLE' }
-                }                    
-
-                ordentipotrabajo
-                    .findByIdAndUpdate(
-                        ordenactividadDB.ordentipotrabajo, 
-                        body, 
-                        { new: true, runValidators: true }, 
-                    (err, dataDB) => {
-                        //Cambio de estado orden de trabajo
-                        //NO CUMPLE: si alguna de sus ordenes de tipo de trabajo está como NO CUMPLE
-                        //EN PROCESO: si hay ordenes de tipo de trabajo CUMPLIDAS o EN PROCESO
-                        //CUMPLE: cuando todas las ordenes de tipo de trabajo asociadas, están cumplidas                                                
-                        ordentipotrabajo
-                            .find({ 
-                                ordentrabajo: ordenactividadDB.ordentrabajo,
-                                estado: { $in: ['NO CUMPLE', 'EN PROCESO'] } 
-                            }).exec((err, ordentipotrabajoDB2) => { 
-
-                                var body = { estado: 'EN PROCESO' };
-                                ordentipotrabajoDB2.forEach(function(value) {
-                                    if (value.estado === 'NO CUMPLE') {
-                                        body = { estado: 'NO CUMPLE' }
-                                    }
-                                });    
-
-                                if (ordentipotrabajoDB2.length == 0) {                                
-                                    body = { estado: 'CUMPLE' }
-                                }   
-
-                                ordentrabajo.findByIdAndUpdate(
-                                    ordenactividadDB.ordentrabajo, 
-                                    body, {new: true, runValidators: true}, 
-                                    (err, dataDB) => {}
-                                );                   
-                    
+                    if (err) {
+                        return res.status(400).json({
+                            ok: false,
+                            err
                         });
-                        //
-                    });
+                    }
 
-           });
+                    let body = { estado: 'EN PROCESO' };
+                    ordenactividadDB2.forEach((value) => {
+                        if (value.estado === 'NO CUMPLE') {
+                            body = { estado: 'NO CUMPLE' }
+                        }
+                    });  
 
-        res.json({
-            ok: true,
-            ordenactividadDB
+                    //si la consulta no trae datos, todas las ordenes están cumplidas
+                    if (ordenactividadDB2.length === 0) {                                
+                        body = { estado: 'CUMPLE' }
+                    }                    
+
+                    ordentipotrabajo
+                        .findByIdAndUpdate(
+                            ordenactividadDB.ordentipotrabajo, 
+                            body, 
+                            { new: true, runValidators: true }, 
+                        (err, dataDB) => {
+                            //Cambio de estado orden de trabajo
+                            //NO CUMPLE: si alguna de sus ordenes de tipo de trabajo está como NO CUMPLE
+                            //EN PROCESO: si hay ordenes de tipo de trabajo CUMPLIDAS o EN PROCESO
+                            //CUMPLE: cuando todas las ordenes de tipo de trabajo asociadas, están cumplidas                                                
+                            ordentipotrabajo
+                                .find({ 
+                                    ordentrabajo: ordenactividadDB.ordentrabajo,
+                                    estado: { $in: ['NO CUMPLE', 'EN PROCESO'] } 
+                                }).exec((err, ordentipotrabajoDB2) => { 
+
+                                    var body = { estado: 'EN PROCESO' };
+                                    ordentipotrabajoDB2.forEach(function(value) {
+                                        if (value.estado === 'NO CUMPLE') {
+                                            body = { estado: 'NO CUMPLE' }
+                                        }
+                                    });    
+
+                                    if (ordentipotrabajoDB2.length == 0) {                                
+                                        body = { estado: 'CUMPLE' }
+                                    }   
+
+                                    ordentrabajo.findByIdAndUpdate(
+                                        ordenactividadDB.ordentrabajo, 
+                                        body, {new: true, runValidators: true}, 
+                                        (err, dataDB) => {}
+                                    );                   
+                        
+                            });
+                            //
+                        });
+
+                });
+
+            res.json({
+                ok: true,
+                ordenactividadDB
+            });
+
         });
 
     });
@@ -469,9 +471,9 @@ app.put('/ordenactividad-bitacora/editar/:id', upload.array("uploads[]"), functi
             console.log('Error al guardar el checklist');
         }
         
-        resizeImages(req, next).then(() => {});
+        resizeImages(req, next).then(() => {
 
-        ordenactividad
+            ordenactividad
             .find({ _id: id })
             .populate('ordentipotrabajo')
             .exec((err, ordenactividadDB) => {
@@ -503,12 +505,31 @@ app.put('/ordenactividad-bitacora/editar/:id', upload.array("uploads[]"), functi
                     ordenactividadDB
                 });        
 
-        });
-       
+            });
+
+        });       
         
     });
     
 });
+
+// =============================================================
+// Redimensión de las imágenes que se cargan en la legalización
+// =============================================================
+const resizeImages = async (req,) => {
+    if (!req.files) return;
+  
+    await Promise.all(
+      req.files.map(async file => {  
+        await sharp(file.path)
+          .resize(280, 380)
+          .toFormat("jpeg")
+          .jpeg({ quality: 50 })
+          .toFile(`./uploads/ordenes/legalizaciones_pdf/${ file.originalname }`);
+
+      })
+    );  
+};
 
 // =================================================
 // Inactiva una orden de actividad (re-legalización)
@@ -596,25 +617,8 @@ app.delete('/ordenactividad/eliminar/:id', (req, res) => {
         
     });
 
-});    
-    
-// =============================================================
-// Redimensión de las imágenes que se cargan en la legalización
-// =============================================================
-const resizeImages = async (req,) => {
-    if (!req.files) return;
-  
-    await Promise.all(
-      req.files.map(async file => {  
-        await sharp(file.path)
-          .resize(280, 380)
-          .toFormat("jpeg")
-          .jpeg({ quality: 50 })
-          .toFile(`./uploads/ordenes/legalizaciones_pdf/${ file.originalname }`);
+}); 
 
-      })
-    );  
-};
 
 // =============================
 // Crear Nota Actividad

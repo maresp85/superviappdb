@@ -20,8 +20,19 @@ const storage = multer.diskStorage({
     }
 });
 
-
 const upload = multer({ storage: storage });
+
+const storageWeb = multer.diskStorage({
+    // destination
+    destination: function (req, file, cb) {
+      cb(null, './uploads/ordenes/firma_usuario')
+    },
+    filename: function (req, file, cb) {    
+      cb(null, req.body.firmaUsuario);
+    }
+});
+
+const uploadWeb = multer({ storage: storageWeb });
 
 // =============================
 // Guardar firma usuario
@@ -53,6 +64,30 @@ app.put('/signature-order/:id', upload.single('image'), verificaToken, (req, res
             ordentrabajoDB
         });
 
+    });
+});
+
+// =============================
+// Guardar firma usuario en Web
+// =============================
+app.put('/signature-order-web/:_id', uploadWeb.single('image'), verificaToken, (req, res, next) => {
+   
+    let _id = req.params._id;
+    let body = req.body;
+
+    ordentrabajo.findByIdAndUpdate(_id, body, {new: true, runValidators: true}, (err, ordentrabajoDB) => {
+        if (err) {
+            return res.status(400).json({
+                ok: false,
+                err
+            });
+        }
+
+        res.json({
+            ok: true,
+            ordentrabajoDB
+        });
+  
     });
 });
 
