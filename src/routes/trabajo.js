@@ -143,6 +143,7 @@ app.post('/trabajo/crear', verificaToken, (req, res) => {
         fechaMejora: body.fechaMejora,
         legalizaCualquierOrden: body.legalizaCualquierOrden,
         bitacora: body.bitacora,
+        gradeChart: body.gradeChart,
     });
 
     data.save((err, trabajoDB) => {

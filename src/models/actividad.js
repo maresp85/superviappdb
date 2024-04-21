@@ -19,6 +19,7 @@ let actividadSchema = new Schema({
     activo: { type: Boolean, required: false, default: true },
     orden: { type: Number, required: false, default: 1 },
     role: { type: String, required: true, default: 'SUPERVISOR SSTA', enum: rolesValidos },
+    calificacion: { type: Number, required: false, default: 1 },
 });
 
 module.exports = mongoose.model('actividad', actividadSchema);

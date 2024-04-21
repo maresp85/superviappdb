@@ -10,6 +10,7 @@ let trabajoSchema = new Schema({
     legalizaCualquierOrden: { type: Boolean, required: false, default: true },
     bitacora: { type: Boolean, required: false, default: false },
     extraFields: [{ type: String }],
+    gradeChart: { type: String, required: false, default: 'bar' },   
 });
 
 module.exports = mongoose.model('trabajo', trabajoSchema);

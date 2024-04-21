@@ -181,7 +181,8 @@ app.post('/actividad/crear', (req, res) => {
                 role: body.role,
                 tipotrabajo: body.tipotrabajo,
                 trabajo: tipotrabajoDB.trabajo,
-                empresa: tipotrabajoDB.empresa
+                empresa: tipotrabajoDB.empresa,
+                calificacion: body.calificacion,
             });
         
             data.save((err, actividadDB) => {

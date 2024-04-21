@@ -35,6 +35,7 @@ let ordenactividadSchema = new Schema({
     orden: { type: Number, required: false, default: 1 },
     role: { type: String, required: true, default: 'SUPERVISOR SSTA', enum: rolesValidos },
     consecutivo: { type: Number },
+    calificacion: { type: Number, required: false, default: 1 },
 });
 
 autoIncrement.initialize(mongoose.connection);

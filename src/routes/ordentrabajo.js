@@ -379,6 +379,7 @@ app.post('/ordentrabajo/crear', verificaToken, (req, res) => {
                                             orden: itemActividad.orden,
                                             role: itemActividad.role,
                                             consecutivo: consecutivo,
+                                            calificacion: itemActividad.calificacion,
                                             fechacreacion: new Date(),
                                             activo: true,
                                         });
