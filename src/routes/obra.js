@@ -115,7 +115,7 @@ app.get('/obra/listar-usuario-app/:usuario', verificaToken, (req, res) => {
         .find({ _id: usuarioId })
         .exec((err, usuarioDB) => {
 
-            if (usuarioDB[0].role === 'SUPERVISOR DEL CONTRATO') {
+            if (usuarioDB[0].role === 'SUPERVISOR DEL CONTRATO' || usuarioDB[0].role === 'CONSULTA') {
 
                 obra.find({ activo: 1, empresa: usuarioDB[0].empresa[0] })
                     .sort([['nombre', 1]])

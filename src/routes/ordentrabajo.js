@@ -697,7 +697,7 @@ app.post('/ordentrabajo/buscar-app', (req, res) => {
             if (id) {
                 query.id = id;
             }          
-            if (usuarioDB[0].role !== 'SUPERVISOR DEL CONTRATO') {
+            if (usuarioDB[0].role === 'SUPERVISOR SSTA' || usuarioDB[0].role === 'SUPERVISOR LEGAL LABORAL') {
                 query.usuario = usuarioId;
             }
             if (estado) {

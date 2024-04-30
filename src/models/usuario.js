@@ -7,6 +7,7 @@ let rolesValidos = {
         'SUPERVISOR SSTA',
         'SUPERVISOR LEGAL LABORAL',
         'SUPERVISOR DEL CONTRATO',
+        'CONSULTA',
     ],
     message: "{VALUE} no es un rol válido"
 }
